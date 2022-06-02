@@ -69,14 +69,16 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         movePaddle() {
             this.paddlesArr.forEach((paddSettings)=>{
-                paddSettings.y += paddSettings.speed
                 const { left, right } = paddSettings.controls
                 const paddleCantMove = paddSettings.y >= this.height - this.paddleSettings.height || paddSettings.y <= 4
-                const runMove = () => {                   
+                const cantMoveRight = paddSettings.y <= 4
+                const cantMoveLeft = paddSettings.y >= this.height - this.paddleSettings.height
+                const runMove = () => {     
+                    paddSettings.y += paddSettings.speed
                     document.addEventListener("keydown", (e) => {
                         switch (e.key) {
                             case left:
-                                if (paddSettings.speed <= 0 ) {
+                                if (paddSettings.speed <= 0) {
                                     paddSettings.speed = this.maxSpeed
                                 } 
                                 break
@@ -98,19 +100,16 @@ document.addEventListener("DOMContentLoaded", () => {
                     //     }
                     // },{once:true})
                 }
-                if (!paddleCantMove) {
-                    runMove()
-                } else {
-                    paddSettings.speed=0
-                }
+                if (!paddleCantMove) runMove()
+                else paddSettings.speed =0
             })
    
         }
-        shouldPaddMove() {
-            this.paddlesArr.forEach(paddle =>{
-                
-            })
-        }
+        // canpaddleMove() {
+        //     this.paddlesArr.forEach(paddle => {
+        //         if (paddle.y <=0 )
+        //     })
+        // }
         runPaddles() {
             this.drawPaddle()
             this.movePaddle()
