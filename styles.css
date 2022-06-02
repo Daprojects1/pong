@@ -1,0 +1,37 @@
+body{
+    display: flex;
+    justify-content: center;
+    padding-top: 80px;
+    color: white;
+    font-family: monospace;
+}
+
+.fullBody{
+    background-color: rgb(42, 42, 72);
+    padding: 50px 50px;
+    
+}
+.canvas{
+    border: 1px solid black;
+}
+
+.score,.score__cont{
+    display: flex;
+}
+
+.fullBody h3{
+    margin: 0 0 30px;
+    font-size: 20px;
+}
+.score{
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    font-size: 50px;
+}
+
+.score__cont{
+    width: 500px;
+    display: flex;
+    justify-content: space-between;
+}
