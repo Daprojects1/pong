@@ -2,6 +2,8 @@
 
 document.addEventListener("DOMContentLoaded", () => {
     const canvas = document.querySelector("canvas")
+
+  
     class Board {
         constructor() {
             this.canvas = canvas
@@ -67,52 +69,40 @@ document.addEventListener("DOMContentLoaded", () => {
                 createPaddle(obj.x, obj.y)
             })
         }
-        movePaddle() {
-            this.paddlesArr.forEach((paddSettings)=>{
-                const { left, right } = paddSettings.controls
-                const paddleCantMove = paddSettings.y >= this.height - this.paddleSettings.height || paddSettings.y <= 4
-                const cantMoveRight = paddSettings.y <= 4
-                const cantMoveLeft = paddSettings.y >= this.height - this.paddleSettings.height
-                const runMove = () => {     
-                    paddSettings.y += paddSettings.speed
-                    document.addEventListener("keydown", (e) => {
-                        switch (e.key) {
-                            case left:
-                                if (paddSettings.speed <= 0) {
-                                    paddSettings.speed = this.maxSpeed
-                                } 
-                                break
-                            case right:
-                                if (paddSettings.speed >= 0 ) {
-                                    paddSettings.speed = -this.maxSpeed
-                                }
-                                break
-                        }
-                    }, { once: true })
-                    // document.addEventListener("keyup", (e) => {
-                    //     switch (e.key) {
-                    //         case right:
-                    //            paddSettings.speed = 0
-                    //             break
-                    //         case left:
-                    //             paddSettings.speed =0
-                    //             break
-                    //     }
-                    // },{once:true})
+  
+        movePaddles() {
+            const runPaddles = (paddle, side, speed) => {
+                document.addEventListener('keydown', (e) => {
+                    e.stopPropagation()
+                    if (e.key === side) {
+                        paddle.speed = speed
+                    }
+                },{once:true})
+            }
+            this.paddlesArr.forEach(paddle => {
+                const {left, right} = paddle.controls
+                paddle.y += paddle.speed
+                if (paddle.y >= 0) {
+                    // MOVE LEFT PADDLE 
+                    runPaddles(paddle, left, this.maxSpeed)
+                } else {
+                    paddle.y =2
+                    paddle.speed =0
+                    return 
                 }
-                if (!paddleCantMove) runMove()
-                else paddSettings.speed =0
+                if (paddle.y <= this.height - this.paddleSettings.height) {
+                    // MOVE RIGHT PADDLE
+                    runPaddles(paddle, right, -this.maxSpeed)
+                } else {
+                    paddle.y = this.height - this.paddleSettings.height
+                    paddle.speed =0
+                   return
+                }
             })
-   
         }
-        // canpaddleMove() {
-        //     this.paddlesArr.forEach(paddle => {
-        //         if (paddle.y <=0 )
-        //     })
-        // }
         runPaddles() {
             this.drawPaddle()
-            this.movePaddle()
+            this.movePaddles()
         }
         runGame() {
             setInterval(() => {
@@ -126,3 +116,4 @@ document.addEventListener("DOMContentLoaded", () => {
     const game = new Board()
     game.runGame()
 })
+
