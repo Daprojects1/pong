@@ -3,7 +3,20 @@
 document.addEventListener("DOMContentLoaded", () => {
     const canvas = document.querySelector("canvas")
 
-  
+    const createPadd = (x, y, speed, controls) => {
+        return {
+            x,y,speed, controls
+        }
+    }
+
+    const createObject = (settings, ctx) => {
+        const {width, height, x,y} = settings
+        ctx.beginPath()
+        ctx.rect(x, y, width, height)
+        ctx.fillStyle = "white"
+        ctx.fill()
+        ctx.closePath()
+    }
     class Board {
         constructor() {
             this.canvas = canvas
@@ -16,21 +29,16 @@ document.addEventListener("DOMContentLoaded", () => {
                 height: 50
             }
             this.ballSettings = {
+                x: 20,
+                y :this.height / 2 -30,
+                width: 10,
+                height: 10,
                 ballXSpeed: 0,
                 ballYSpeed: 0,
             }
-            this.paddle1Settings = {
-                x: 0,
-                y: this.height / 2 - this.paddleSettings.height,
-                speed: 0,
-                controls: {left:'s',right:'w'}
-            }
-            this.paddle2Settings = {
-                x: this.width - this.paddleSettings.width,
-                y: this.height / 2 - this.paddleSettings.height,
-                speed: 0,
-                controls: {left:'ArrowLeft',right:'ArrowRight'}
-            }
+            this.paddle1Settings = createPadd(0, this.height / 2 - this.paddleSettings.height, 0, { left: 's', right: 'w' })
+            this.paddle2Settings = createPadd(this.width - this.paddleSettings.width, this.height / 2 - this.paddleSettings.height, 0,
+                { left: 'ArrowLeft', right: 'ArrowRight' })
             this.paddlesArr = [this.paddle1Settings, this.paddle2Settings]
         }
         clearGame() {
@@ -57,19 +65,14 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         }
         drawPaddle() {
-            const createPaddle = (x, y) => {
-                const { width, height } = this.paddleSettings
-                this.ctx.beginPath()
-                this.ctx.rect(x, y, width, height)
-                this.ctx.fillStyle = "white"
-                this.ctx.fill()
-                this.ctx.closePath()
-            }
             this.paddlesArr.forEach((obj) => {
-                createPaddle(obj.x, obj.y)
+                createObject({ x:obj.x, y:obj.y, ...this.paddleSettings }, this.ctx)
             })
         }
-  
+
+        drawBall() {
+            createObject(this.ballSettings, this.ctx)
+        }
         movePaddles() {
             const runPaddles = (paddle, side, speed) => {
                 document.addEventListener('keydown', (e) => {
@@ -77,7 +80,15 @@ document.addEventListener("DOMContentLoaded", () => {
                     if (e.key === side) {
                         paddle.speed = speed
                     }
-                },{once:true})
+                }, { once: true })
+                
+                // document.addEventListener('keyup', (e) => {
+                //     e.stopPropagation()
+                //     if (e.key === side) {
+                //         paddle.speed = 0
+                //     }
+                // }, { once: true })
+
             }
             this.paddlesArr.forEach(paddle => {
                 const {left, right} = paddle.controls
@@ -90,6 +101,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     paddle.speed =0
                     return 
                 }
+                
                 if (paddle.y <= this.height - this.paddleSettings.height) {
                     // MOVE RIGHT PADDLE
                     runPaddles(paddle, right, -this.maxSpeed)
@@ -109,6 +121,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 this.clearGame()
                 this.drawLine(100)
                 this.runPaddles()
+                this.drawBall()
             },100)
         }
         
