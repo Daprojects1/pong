@@ -28,13 +28,14 @@ document.addEventListener("DOMContentLoaded", () => {
                 width: 10,
                 height: 50
             }
+            this.ballSpeed =10
             this.ballSettings = {
                 x: 20,
                 y :this.height / 2 -30,
                 width: 10,
                 height: 10,
-                ballXSpeed: 0,
-                ballYSpeed: 0,
+                xSpeed: 10,
+                ySpeed: 0,
             }
             this.paddle1Settings = createPadd(0, this.height / 2 - this.paddleSettings.height, 0, { left: 's', right: 'w' })
             this.paddle2Settings = createPadd(this.width - this.paddleSettings.width, this.height / 2 - this.paddleSettings.height, 0,
@@ -70,9 +71,6 @@ document.addEventListener("DOMContentLoaded", () => {
             })
         }
 
-        drawBall() {
-            createObject(this.ballSettings, this.ctx)
-        }
         movePaddles() {
             const runPaddles = (paddle, side, speed) => {
                 document.addEventListener('keydown', (e) => {
@@ -116,12 +114,28 @@ document.addEventListener("DOMContentLoaded", () => {
             this.drawPaddle()
             this.movePaddles()
         }
+        drawBall() {
+            createObject(this.ballSettings, this.ctx)
+        }
+        moveBall() {
+            const {x, xSpeed} = this.ballSettings
+            this.ballSettings.x += xSpeed
+            if (this.ballSettings.x === 0) {
+                this.ballSettings.xSpeed = this.ballSpeed 
+            } else if (this.ballSettings.x === this.width - 10) {
+                this.ballSettings.xSpeed = -this.ballSpeed
+            }
+        }
+        runBall() {
+            this.drawBall()
+            this.moveBall()
+        }
         runGame() {
             setInterval(() => {
                 this.clearGame()
                 this.drawLine(100)
                 this.runPaddles()
-                this.drawBall()
+                this.runBall()
             },100)
         }
         
