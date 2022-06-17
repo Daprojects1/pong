@@ -2,6 +2,8 @@
 
 document.addEventListener("DOMContentLoaded", () => {
     const canvas = document.querySelector("canvas")
+    const score1 = document.querySelector('.score__player1')
+    const score2 = document.querySelector('.score__player2')
 
     const createPadd = (x, y, speed, controls) => {
         return {
@@ -17,6 +19,18 @@ document.addEventListener("DOMContentLoaded", () => {
         ctx.fill()
         ctx.closePath()
     }
+    const updateScores = (scoreOne, scoreTwo) => {
+        score1.textContent = scoreOne
+        score2.textContent = scoreTwo
+    }
+    const createBall = (settings, ctx) => {
+        const { radius, x, y } = settings
+        ctx.beginPath()
+        ctx.arc(x, y,radius, 0, 2 * Math.PI)
+        ctx.fillStyle = "white"
+        ctx.fill()
+        ctx.closePath()
+    }
     class Board {
         constructor() {
             this.canvas = canvas
@@ -24,23 +38,28 @@ document.addEventListener("DOMContentLoaded", () => {
             this.width = canvas.width
             this.height = canvas.height
             this.maxSpeed = 15
+            this.round = 1
             this.paddleSettings = {
                 width: 10,
                 height: 50
             }
-            this.ballSpeed =10
+            this.ballSpeed = 15
             this.ballSettings = {
                 x: 20,
                 y :this.height / 2 -30,
-                width: 10,
-                height: 10,
+                radius:8,
                 xSpeed: 10,
-                ySpeed: 0,
+                ySpeed: 10,
+            }
+            this.scores = {
+                padd1:0,
+                padd2:0
             }
             this.paddle1Settings = createPadd(0, this.height / 2 - this.paddleSettings.height, 0, { left: 's', right: 'w' })
             this.paddle2Settings = createPadd(this.width - this.paddleSettings.width, this.height / 2 - this.paddleSettings.height, 0,
                 { left: 'ArrowLeft', right: 'ArrowRight' })
             this.paddlesArr = [this.paddle1Settings, this.paddle2Settings]
+            this.paddleOnApproach = {...this.paddle2Settings}
         }
         clearGame() {
             const { width, height } = this.canvas
@@ -64,13 +83,17 @@ document.addEventListener("DOMContentLoaded", () => {
                 this.ctx.fill()
                 this.ctx.closePath()
             }
+            if (this.ballSettings.x > this.width / 2) {
+                this.paddleOnApproach = {...this.paddle2Settings}
+            } else {
+                this.paddleOnApproach = {...this.paddle1Settings}
+            }
         }
         drawPaddle() {
             this.paddlesArr.forEach((obj) => {
                 createObject({ x:obj.x, y:obj.y, ...this.paddleSettings }, this.ctx)
             })
         }
-
         movePaddles() {
             const runPaddles = (paddle, side, speed) => {
                 document.addEventListener('keydown', (e) => {
@@ -115,14 +138,23 @@ document.addEventListener("DOMContentLoaded", () => {
             this.movePaddles()
         }
         drawBall() {
-            createObject(this.ballSettings, this.ctx)
+            // createObject(this.ballSettings, this.ctx)
+            createBall(this.ballSettings, this.ctx)
         }
         moveBall() {
-            const {x, xSpeed} = this.ballSettings
+            const isPaddleSameHeight = this.ballSettings.y >= this.paddleOnApproach.y
+            && this.ballSettings.y <= this.paddleOnApproach.y + this.paddleSettings.height
+            const {x, xSpeed, ySpeed} = this.ballSettings
             this.ballSettings.x += xSpeed
-            if (this.ballSettings.x === 0) {
+            this.ballSettings.y += ySpeed
+            if (this.ballSettings.y === 10) {
+                this.ballSettings.ySpeed = this.ballSpeed
+            } else if (this.ballSettings.y >= this.height-10) {
+                this.ballSettings.ySpeed = - this.ballSpeed
+            } 
+            if (this.ballSettings.x === 10 && isPaddleSameHeight) {
                 this.ballSettings.xSpeed = this.ballSpeed 
-            } else if (this.ballSettings.x === this.width - 10) {
+            } else if (this.ballSettings.x === this.paddleOnApproach.x - 10 && isPaddleSameHeight ) {
                 this.ballSettings.xSpeed = -this.ballSpeed
             }
         }
@@ -130,12 +162,27 @@ document.addEventListener("DOMContentLoaded", () => {
             this.drawBall()
             this.moveBall()
         }
+        checkForScoreUpdate() {
+            if (this.ballSettings.x < 0) {
+                this.scores.padd1 += 1
+                return
+            } else if (this.ballSettings.x > this.width) {
+                this.scores.padd2 += 1 
+                return
+            }
+        }
+        updateGameScore() {
+            const { padd1, padd2 } = this.scores
+            updateScores(padd1, padd2)
+        }
         runGame() {
             setInterval(() => {
+                this.updateGameScore()
                 this.clearGame()
                 this.drawLine(100)
                 this.runPaddles()
                 this.runBall()
+                this.checkForScoreUpdate()
             },100)
         }
         
