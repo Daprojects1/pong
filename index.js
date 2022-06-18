@@ -156,25 +156,27 @@ document.addEventListener("DOMContentLoaded", () => {
                 this.ballSettings.ySpeed = -this.ballSpeed
             } 
 
-            if (this.ballSettings.x <= 10 && isPaddleSameHeight) {
+            if (this.ballSettings.x === 10 && isPaddleSameHeight) {
                 this.ballSettings.xSpeed = this.ballSpeed 
-            } else if (this.ballSettings.x === this.paddleOnApproach.x - 10 && isPaddleSameHeight ) {
+            }
+            if (this.ballSettings.x === this.paddleOnApproach.x - 10 && isPaddleSameHeight) {
                 this.ballSettings.xSpeed = -this.ballSpeed
             }
+    
         }
         runBall() {
             this.drawBall()
             this.moveBall()
         }
         checkForScoreUpdate() {
-            if (this.ballSettings.x < 0) {
+            if (this.ballSettings.x <= 0) {
                 this.scores.padd2 += 1
+                this.round+=1
                 this.gameReset()
-                this.round+1
             } else if (this.ballSettings.x > this.width) {
                 this.scores.padd1 += 1 
+                this.round+=1
                 this.gameReset()
-                this.round+1
             }
         }
         updateGameScore() {
