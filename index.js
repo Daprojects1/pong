@@ -2,6 +2,7 @@
 
 document.addEventListener("DOMContentLoaded", () => {
     const canvas = document.querySelector("canvas")
+    const scoreTitle = document.querySelector('.score__title')
     const score1 = document.querySelector('.score__player1')
     const score2 = document.querySelector('.score__player2')
 
@@ -19,7 +20,8 @@ document.addEventListener("DOMContentLoaded", () => {
         ctx.fill()
         ctx.closePath()
     }
-    const updateScores = (scoreOne, scoreTwo) => {
+    const updateScores = (scoreOne, scoreTwo, round) => {
+        scoreTitle.textContent = `Round ${round}`
         score1.textContent = scoreOne
         score2.textContent = scoreTwo
     }
@@ -147,12 +149,14 @@ document.addEventListener("DOMContentLoaded", () => {
             const {x, xSpeed, ySpeed} = this.ballSettings
             this.ballSettings.x += xSpeed
             this.ballSettings.y += ySpeed
+
             if (this.ballSettings.y === 10) {
                 this.ballSettings.ySpeed = this.ballSpeed
             } else if (this.ballSettings.y >= this.height-10) {
-                this.ballSettings.ySpeed = - this.ballSpeed
+                this.ballSettings.ySpeed = -this.ballSpeed
             } 
-            if (this.ballSettings.x === 10 && isPaddleSameHeight) {
+
+            if (this.ballSettings.x <= 10 && isPaddleSameHeight) {
                 this.ballSettings.xSpeed = this.ballSpeed 
             } else if (this.ballSettings.x === this.paddleOnApproach.x - 10 && isPaddleSameHeight ) {
                 this.ballSettings.xSpeed = -this.ballSpeed
@@ -164,16 +168,31 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         checkForScoreUpdate() {
             if (this.ballSettings.x < 0) {
-                this.scores.padd1 += 1
-                return
+                this.scores.padd2 += 1
+                this.gameReset()
+                this.round+1
             } else if (this.ballSettings.x > this.width) {
-                this.scores.padd2 += 1 
-                return
+                this.scores.padd1 += 1 
+                this.gameReset()
+                this.round+1
             }
         }
         updateGameScore() {
             const { padd1, padd2 } = this.scores
-            updateScores(padd1, padd2)
+            updateScores(padd1, padd2, this.round)
+        }
+        gameReset() {
+            this.paddle1Settings = createPadd(0, this.height / 2 - this.paddleSettings.height, 0, { left: 's', right: 'w' })
+            this.paddle2Settings = createPadd(this.width - this.paddleSettings.width, this.height / 2 - this.paddleSettings.height, 0,
+                { left: 'ArrowLeft', right: 'ArrowRight' })
+            this.ballSettings = {
+                x: 20,
+                y :this.height / 2 -30,
+                radius:8,
+                xSpeed: 10,
+                ySpeed: 10,
+            }
+            this.paddlesArr =[this.paddle1Settings, this.paddle2Settings]
         }
         runGame() {
             setInterval(() => {
