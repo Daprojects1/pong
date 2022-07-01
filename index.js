@@ -208,26 +208,32 @@ document.addEventListener("DOMContentLoaded", () => {
             }
             this.paddlesArr =[this.paddle1Settings, this.paddle2Settings]
         }
+        playGame = () => {
+            this.clearGame()
+            this.updateGameScore()
+            this.drawLine(100)
+            this.runPaddles()
+            this.runBall()
+            this.checkForScoreUpdate()
+        }
+        winnerModal = () => {
+            const body = document.querySelector('body')
+            const modal = document.createElement('div')
+            body.appendChild(modal)
+            body.classList.add('background-change')
+            modal.classList.add('modal')
+            modal.innerHTML = `
+            <h1>Game Over</h1>
+            <p>The winner is ${this.winner}</p>
+            `
+        }
         gameInterval = () => {
             if (this.running) {
-                    this.clearGame()
-                    this.updateGameScore()
-                    this.drawLine(100)
-                    this.runPaddles()
-                    this.runBall()
-                    this.checkForScoreUpdate()
+               this.playGame()
             } else {
                 clearInterval(this.interval)
                 console.log('stopped')
-                const body = document.querySelector('body')
-                const modal = document.createElement('div')
-                body.appendChild(modal)
-                body.classList.add('background-change')
-                modal.classList.add('modal')
-                modal.innerHTML = `
-                <h1>Game Over</h1>
-                <p>The winner is ${this.winner}</p>
-                `
+                this.winnerModal()
             }
   
         }
