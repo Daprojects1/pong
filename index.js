@@ -65,9 +65,13 @@ document.addEventListener("DOMContentLoaded", () => {
             this.paddle2Settings = createPadd(this.width - this.paddleSettings.width, this.height / 2 - this.paddleSettings.height, 0,
                 { left: 'ArrowLeft', right: 'ArrowRight' })
             this.paddlesArr = [this.paddle1Settings, this.paddle2Settings]
-            this.paddleOnApproach = {...this.paddle2Settings}
+            this.paddleOnApproach = { ...this.paddle2Settings }
+            this.interval =null
+            this.running = true
+            this.winner=null
+            
         }
-        clearGame() {
+        clearGame=()=> {
             const { width, height } = this.canvas
             this.ctx.clearRect(0, 0, width, height)
         }
@@ -95,12 +99,12 @@ document.addEventListener("DOMContentLoaded", () => {
                 this.paddleOnApproach = {...this.paddle1Settings}
             }
         }
-        drawPaddle() {
+        drawPaddle=()=> {
             this.paddlesArr.forEach((obj) => {
                 createObject({ x:obj.x, y:obj.y, ...this.paddleSettings }, this.ctx)
             })
         }
-        movePaddles() {
+        movePaddles=()=> {
             const runPaddles = (paddle, side, speed) => {
                 document.addEventListener('keydown', (e) => {
                     e.stopPropagation()
@@ -139,15 +143,15 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
             })
         }
-        runPaddles() {
+        runPaddles=()=> {
             this.drawPaddle()
             this.movePaddles()
         }
-        drawBall() {
+        drawBall=()=> {
             // createObject(this.ballSettings, this.ctx)
             createBall(this.ballSettings, this.ctx)
         }
-        moveBall() {
+        moveBall=()=> {
             const isPaddleSameHeight = this.ballSettings.y >= this.paddleOnApproach.y
             && this.ballSettings.y <= this.paddleOnApproach.y + this.paddleSettings.height
             const {x, xSpeed, ySpeed} = this.ballSettings
@@ -172,7 +176,10 @@ document.addEventListener("DOMContentLoaded", () => {
             this.drawBall()
             this.moveBall()
         }
-        checkForScoreUpdate() {
+        checkForScoreUpdate=()=> {
+            if (Object.values(this.scores).reduce((acc, s) => acc + s,0) === 1) {
+                this.running = false
+            }
             if (this.ballSettings.x < 0) {
                 this.scores.padd2 += 1
                 this.round+=1
@@ -182,12 +189,13 @@ document.addEventListener("DOMContentLoaded", () => {
                 this.round+=1
                 this.gameReset()
             }
+   
         }
-        updateGameScore() {
+        updateGameScore=()=> {
             const { padd1, padd2 } = this.scores
             updateScores(padd1, padd2, this.round)
         }
-        gameReset() {
+        gameReset=()=> {
             this.paddle1Settings = createPadd(0, this.height / 2 - this.paddleSettings.height, 0, { left: 's', right: 'w' })
             this.paddle2Settings = createPadd(this.width - this.paddleSettings.width, this.height / 2 - this.paddleSettings.height, 0,
                 { left: 'ArrowLeft', right: 'ArrowRight' })
@@ -200,15 +208,33 @@ document.addEventListener("DOMContentLoaded", () => {
             }
             this.paddlesArr =[this.paddle1Settings, this.paddle2Settings]
         }
-        runGame() {
-            setInterval(() => {
-                this.updateGameScore()
-                this.clearGame()
-                this.drawLine(100)
-                this.runPaddles()
-                this.runBall()
-                this.checkForScoreUpdate()
-            },100)
+        gameInterval = () => {
+            if (this.running) {
+                    this.clearGame()
+                    this.updateGameScore()
+                    this.drawLine(100)
+                    this.runPaddles()
+                    this.runBall()
+                    this.checkForScoreUpdate()
+            } else {
+                clearInterval(this.interval)
+                console.log('stopped')
+                const body = document.querySelector('body')
+                const modal = document.createElement('div')
+                body.appendChild(modal)
+                body.classList.add('background-change')
+                modal.classList.add('modal')
+                modal.innerHTML = `
+                <h1>Game Over</h1>
+                <p>The winner is ${this.winner}</p>
+                `
+            }
+  
+        }
+        runGame = () => {
+         this.interval = setInterval(() => {
+                this.gameInterval()
+            }, 100);
         }
         
     }
