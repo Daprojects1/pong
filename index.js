@@ -12,6 +12,10 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
+    const randomIntFromInterval=(min, max) => { // min and max included 
+        return Math.floor(Math.random() * (max - min + 1) + min)
+      }
+      
     const createObject = (settings, ctx) => {
         const {width, height, x,y} = settings
         ctx.beginPath()
@@ -48,7 +52,7 @@ document.addEventListener("DOMContentLoaded", () => {
             this.ballSpeed = 15
             this.ballSettings = {
                 x: 20,
-                y :this.height / 2 -30,
+                y :randomIntFromInterval(30,this.height-30),
                 radius:8,
                 xSpeed: 10,
                 ySpeed: 10,
@@ -150,18 +154,18 @@ document.addEventListener("DOMContentLoaded", () => {
             this.ballSettings.x += xSpeed
             this.ballSettings.y += ySpeed
 
-            if (this.ballSettings.y === 10) {
+            if (this.ballSettings.x === this.paddleOnApproach.x +10 && isPaddleSameHeight) {
+                this.ballSettings.xSpeed = this.ballSpeed 
+            } else if (this.ballSettings.x === this.paddleOnApproach.x - 10 && isPaddleSameHeight) {
+                this.ballSettings.xSpeed = -this.ballSpeed
+            }
+
+            if (this.ballSettings.y <= 10) {
                 this.ballSettings.ySpeed = this.ballSpeed
             } else if (this.ballSettings.y >= this.height-10) {
                 this.ballSettings.ySpeed = -this.ballSpeed
-            } 
+            }
 
-            if (this.ballSettings.x === 10 && isPaddleSameHeight) {
-                this.ballSettings.xSpeed = this.ballSpeed 
-            }
-            if (this.ballSettings.x === this.paddleOnApproach.x - 10 && isPaddleSameHeight) {
-                this.ballSettings.xSpeed = -this.ballSpeed
-            }
     
         }
         runBall() {
@@ -169,7 +173,7 @@ document.addEventListener("DOMContentLoaded", () => {
             this.moveBall()
         }
         checkForScoreUpdate() {
-            if (this.ballSettings.x <= 0) {
+            if (this.ballSettings.x < 0) {
                 this.scores.padd2 += 1
                 this.round+=1
                 this.gameReset()
