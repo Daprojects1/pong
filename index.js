@@ -177,7 +177,9 @@ document.addEventListener("DOMContentLoaded", () => {
             this.moveBall()
         }
         checkForScoreUpdate=()=> {
-            if (Object.values(this.scores).reduce((acc, s) => acc + s,0) === 1) {
+            if (Object.values(this.scores).reduce((acc, s) => acc + s, 0) === 7) {
+                const winner = this.scores.padd1 > this.scores.padd2 ? 'Player 1' : 'Player 2'
+                this.winner = winner
                 this.running = false
             }
             if (this.ballSettings.x < 0) {
