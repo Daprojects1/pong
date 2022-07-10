@@ -61,3 +61,16 @@ body{
 .modal p{
     font-size: 25px;
 }
+
+.modal button{
+    position: absolute;
+    top: 50%;
+    left: 50%; 
+    transform: translate(-50%,-50%);
+    color: white;
+    border: 1px solid;
+    background-color: rgb(42, 42, 72) ;
+    padding: 10px 20px;
+    border-radius: 10px;
+    cursor: pointer;
+}
