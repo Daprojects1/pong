@@ -66,9 +66,9 @@ document.addEventListener("DOMContentLoaded", () => {
             this.width = canvas.width
             this.height = canvas.height
             this.initialSettings = initialSettings(this)
-            this.ballStart = 'player1'
+            this.ballStart = 'player2'
             this.ballSettings ={
-                x: this.handleBallStartX(),
+                x: 10,
                 y :randomIntFromInterval(30,this.height-30),
                 radius:8,
                 xSpeed: 2.5,
@@ -89,19 +89,22 @@ document.addEventListener("DOMContentLoaded", () => {
             // use to loop through eachh paddle and also figure out how to it interacts with ball
             this.paddlesArr = [this.paddle1Settings, this.paddle2Settings]
             this.paddleOnApproach = { ...this.paddle2Settings }
+            this.paddleStart='right'
         }
         clearGame = () => {
             const { width, height } = this.canvas
             this.ctx.clearRect(0, 0, width, height)
         }
-        handleBallStartX() {
+        checkBallStart() {
             if (this.ballStart === 'player1') {
                 this.ballStart = 'player2'
-                return 10
             } else {
                 this.ballStart = 'player1'
-               return this.width - this.paddleSettings.width
             }
+        }
+
+        handleSpeedStart() {
+            
         }
         drawLine(length) {
             let inc = 0
@@ -184,21 +187,21 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         moveBall = () => {
-            
+            // REDO THIS SECTION
             const isPaddleSameHeight = this.ballSettings.y >= this.paddleOnApproach.y
                 && this.ballSettings.y <= this.paddleOnApproach.y + this.paddleSettings.height
-            const isPaddleSameWidth = this.ballSettings.x >= this.paddleOnApproach.x +10 && this.ballSettings.x <= this.paddleOnApproach.x
-            const {x, xSpeed, ySpeed} = this.ballSettings
+            // const isPaddleSameWidth = this.ballSettings.x >= this.paddleOnApproach.x + 10 && this.ballSettings.x <= this.paddleOnApproach.x
+            const { x, xSpeed, ySpeed } = this.ballSettings
             this.ballSettings.x += xSpeed
             this.ballSettings.y += ySpeed
 
             if (this.ballSettings.y <= 10) {
                 this.ballSettings.ySpeed = this.ballSpeed
-            } else if (this.ballSettings.y >= this.height-10) {
+            } else if (this.ballSettings.y >= this.height - 10) {
                 this.ballSettings.ySpeed = -this.ballSpeed
             }
-            if (this.ballSettings.x === this.paddleOnApproach.x +10 && isPaddleSameHeight) {
-                this.ballSettings.xSpeed = this.ballSpeed 
+            if (this.ballSettings.x === this.paddleOnApproach.x + 10 && isPaddleSameHeight) {
+                this.ballSettings.xSpeed = this.ballSpeed
             } else if (this.ballSettings.x === this.paddleOnApproach.x - 10 && isPaddleSameHeight) {
                 this.ballSettings.xSpeed = -this.ballSpeed
             }
@@ -210,18 +213,18 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         checkForScoreUpdate=()=> {
-            if (Object.values(this.scores).reduce((acc, s) => acc + s, 0) === 2) {
+            if (Object.values(this.scores).reduce((acc, s) => acc + s, 0) === 7) {
                 const winner = this.scores.padd1 > this.scores.padd2 ? 'Player 1' : 'Player 2'
                 this.winner = winner
                 this.running = false
             }
             if (this.ballSettings.x < 0) {
                 this.scores.padd2 += 1
-                this.round+=1
+                this.round += 1
                 this.gameReset()
             } else if (this.ballSettings.x > this.width) {
                 this.scores.padd1 += 1 
-                this.round+=1
+                this.round += 1
                 this.gameReset()
             }
    
@@ -230,20 +233,23 @@ document.addEventListener("DOMContentLoaded", () => {
             const { padd1, padd2 } = this.scores
             updateScores(padd1, padd2, this.round)
         }
-        gameReset=()=> {
+        gameReset = () => {
+            const startAtFirstPadd = this.ballStart === 'player1'
             this.ballSettings = {
-                x: this.handleBallStartX(),
+                x: startAtFirstPadd ? 10 : this.width - this.paddleSettings.width -20,
                 y :randomIntFromInterval(30,this.height-30),
                 radius:8,
-                xSpeed: 2.5,
-                ySpeed: 2.5,
+                xSpeed:startAtFirstPadd ? 2.5 :-2.5,
+                ySpeed: startAtFirstPadd ? 2.5 :-2.5,
             }
             this.paddle1Settings = {...this.initialSettings.paddle1}
             this.paddle2Settings = {...this.initialSettings.paddle2}
-            this.paddlesArr =[this.paddle1Settings, this.paddle2Settings]
+            this.paddlesArr = [this.paddle1Settings, this.paddle2Settings]
+
+            if (this.ballStart === 'player1') this.ballStart = 'player2'
+            else this.ballStart = 'player1'
         }
         playGame = () => {
-            console.log(this.ballSettings.y)
             this.clearGame()
             this.updateGameScore()
             this.drawLine(100)
